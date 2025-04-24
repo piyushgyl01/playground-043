@@ -11,6 +11,7 @@ import Post from "./pages/Post";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import PrivateRoute from "./components/PrivateRoute";
 import { AuthProvider } from "./contexts/authContext";
 
 export default function App() {
@@ -23,8 +24,10 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/article/:id" element={<Article />} />
-          <Route path="/edit/:id" element={<Edit />} />
-          <Route path="/post" element={<Post />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/edit/:id" element={<Edit />} />
+            <Route path="/post" element={<Post />} />
+          </Route>
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
