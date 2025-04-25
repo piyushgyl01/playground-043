@@ -25,11 +25,12 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/article/:id" element={<Article />} />
           <Route element={<PrivateRoute />}>
-            <Route path="/edit/:id" element={<Edit />} />
+          <Route path="/editor" element={<Edit />} />
+          <Route path="/editor/:id" element={<Edit />} />
             <Route path="/post" element={<Post />} />
           </Route>
           <Route path="/settings" element={<Settings />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:username" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
