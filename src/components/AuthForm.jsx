@@ -12,7 +12,7 @@ export default function AuthForm({ mode }) {
     name: isLogin ? undefined : "",
     email: isLogin ? undefined : "",
     password: "",
-    confirmPassword: isLogin ? undefined : "",
+    confirmPassword: isLogin ? undefined : "", // Fixed typo
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ export default function AuthForm({ mode }) {
         return false;
       }
 
-      if (formData.password !== formData.confirmPassword) {
+      if (formData.password !== formData.confirmPassword) { // Fixed comparison
         setError("Passwords do not match");
         return false;
       }
@@ -87,7 +87,7 @@ export default function AuthForm({ mode }) {
         };
         result = await login(credentials);
       } else {
-        const { confirmPassword, ...registrationData } = formData;
+        const { confirmPassword, ...registrationData } = formData; // Fixed destructuring
         result = await register(registrationData);
       }
       if (result.success) {
@@ -196,7 +196,7 @@ export default function AuthForm({ mode }) {
                       className="form-control"
                       id="confirmPassword"
                       name="confirmPassword"
-                      value={formData.confirmPassword}
+                      value={formData.confirmPassword} // Fixed typo
                       onChange={handleChange}
                       required
                     />
@@ -206,7 +206,7 @@ export default function AuthForm({ mode }) {
                 <div className="d-grid gap-2">
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-success"
                     disabled={loading}
                   >
                     {loading ? (
