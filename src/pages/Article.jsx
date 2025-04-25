@@ -8,53 +8,49 @@ export default function Article() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  
-  // State for delete modal
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  // State for comment form
   const [commentBody, setCommentBody] = useState("");
-  // State for loading when posting comment
   const [postingComment, setPostingComment] = useState(false);
 
-  // Fetch article
-  const { 
-    data: articleData = { article: null }, 
-    loading: articleLoading, 
+  const {
+    data: articleData = { article: null },
+    loading: articleLoading,
     error: articleError,
-    refetch: refetchArticle 
+    refetch: refetchArticle,
   } = useFetch(`${import.meta.env.VITE_API_URL}/articles/${id}`);
 
   const article = articleData.article || null;
 
-  // Fetch comments
-  const { 
-    data: commentsData = { comments: [] }, 
-    loading: commentsLoading, 
+  const {
+    data: commentsData = { comments: [] },
+    loading: commentsLoading,
     error: commentsError,
-    refetch: refetchComments
+    refetch: refetchComments,
   } = useFetch(`${import.meta.env.VITE_API_URL}/articles/${id}/comments`);
 
   const comments = commentsData.comments || [];
 
-  // Format date function
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Handle article favorite toggle
   const handleFavorite = async () => {
     if (!isAuthenticated || !article) return;
-    
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/articles/${article._id}/favorite`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include"
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/articles/${article._id}/favorite`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
       if (response.ok) {
         refetchArticle();
       }
@@ -63,27 +59,27 @@ export default function Article() {
     }
   };
 
-  // Handle edit article
   const handleEdit = () => {
     navigate(`/editor/${article._id}`);
   };
 
-  // Handle delete article
   const handleDelete = () => {
     setShowDeleteModal(true);
   };
 
-  // Confirm delete article
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/articles/${article._id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include"
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/articles/${article._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
       if (response.ok) {
         setShowDeleteModal(false);
         navigate("/");
@@ -93,22 +89,24 @@ export default function Article() {
     }
   };
 
-  // Handle comment submission
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentBody.trim() || !isAuthenticated) return;
-    
+
     try {
       setPostingComment(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/articles/${article._id}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ body: commentBody })
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/articles/${article._id}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ body: commentBody }),
+        }
+      );
+
       if (response.ok) {
         setCommentBody("");
         refetchComments();
@@ -120,17 +118,21 @@ export default function Article() {
     }
   };
 
-  // Handle comment deletion
   const handleDeleteComment = async (commentId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/articles/${article._id}/comments/${commentId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include"
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/articles/${
+          article._id
+        }/comments/${commentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
       if (response.ok) {
         refetchComments();
       }
@@ -139,10 +141,12 @@ export default function Article() {
     }
   };
 
-  // Loading state
   if (articleLoading || !article) {
     return (
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -150,7 +154,6 @@ export default function Article() {
     );
   }
 
-  // Error state
   if (articleError) {
     return (
       <div className="container mt-4">
@@ -165,7 +168,6 @@ export default function Article() {
 
   return (
     <div className="article-page">
-      {/* Article Banner */}
       <div className="py-5 bg-dark text-white mb-4">
         <div className="container">
           <h1>{article.title}</h1>
@@ -184,9 +186,7 @@ export default function Article() {
               >
                 {article.author?.username}
               </Link>
-              <div className="text-light">
-                {formatDate(article.createdAt)}
-              </div>
+              <div className="text-light">{formatDate(article.createdAt)}</div>
             </div>
 
             {isAuthenticated && (
@@ -208,7 +208,9 @@ export default function Article() {
                   </>
                 ) : (
                   <button
-                    className={`btn ${article.favorited ? 'btn-primary' : 'btn-outline-light'} btn-sm`}
+                    className={`btn ${
+                      article.favorited ? "btn-primary" : "btn-outline-light"
+                    } btn-sm`}
                     onClick={handleFavorite}
                   >
                     {article.favorited ? (
@@ -228,21 +230,25 @@ export default function Article() {
       <div className="container">
         <div className="row">
           <div className="col-lg-8 mx-auto">
-            {/* Article Body */}
             <div className="article-body mb-5">
               <div className="mb-4">
                 {article.description && (
                   <p className="lead text-muted">{article.description}</p>
                 )}
                 <div className="mt-4">
-                  {article.body.split('\n').map((paragraph, index) => (
-                    paragraph ? <p key={index}>{paragraph}</p> : <br key={index} />
-                  ))}
+                  {article.body
+                    .split("\n")
+                    .map((paragraph, index) =>
+                      paragraph ? (
+                        <p key={index}>{paragraph}</p>
+                      ) : (
+                        <br key={index} />
+                      )
+                    )}
                 </div>
               </div>
             </div>
 
-            {/* Tags */}
             <div className="mb-5">
               {article.tagList &&
                 article.tagList.map((tag) => (
@@ -254,7 +260,6 @@ export default function Article() {
 
             <hr className="my-4" />
 
-            {/* Article Actions */}
             <div className="article-actions d-flex justify-content-center mb-5">
               {isAuthenticated && (
                 <>
@@ -266,8 +271,8 @@ export default function Article() {
                       >
                         <FaEdit className="me-1" /> Edit Article
                       </button>
-                      <button 
-                        className="btn btn-outline-danger" 
+                      <button
+                        className="btn btn-outline-danger"
                         onClick={handleDelete}
                       >
                         <FaTrash className="me-1" /> Delete Article
@@ -275,7 +280,11 @@ export default function Article() {
                     </>
                   ) : (
                     <button
-                      className={`btn ${article.favorited ? 'btn-primary' : 'btn-outline-primary'}`}
+                      className={`btn ${
+                        article.favorited
+                          ? "btn-primary"
+                          : "btn-outline-primary"
+                      }`}
                       onClick={handleFavorite}
                     >
                       {article.favorited ? (
@@ -292,11 +301,9 @@ export default function Article() {
 
             <hr className="my-4" />
 
-            {/* Comments Section */}
             <div className="comments-section">
               <h3 className="mb-4">Comments</h3>
 
-              {/* Comment Form */}
               {isAuthenticated ? (
                 <div className="card mb-4">
                   <div className="card-body">
@@ -314,29 +321,31 @@ export default function Article() {
                       <div className="d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center">
                           <img
-                            src={user?.image || 'https://via.placeholder.com/30'}
+                            src={
+                              user?.image || "https://via.placeholder.com/30"
+                            }
                             alt={user?.username}
                             className="rounded-circle me-2"
-                            style={{ width: '30px', height: '30px' }}
+                            style={{ width: "30px", height: "30px" }}
                           />
                           <span className="text-muted">{user?.username}</span>
                         </div>
-                        <button 
-                          className="btn btn-primary" 
+                        <button
+                          className="btn btn-primary"
                           type="submit"
                           disabled={postingComment || !commentBody.trim()}
                         >
                           {postingComment ? (
                             <>
-                              <span 
-                                className="spinner-border spinner-border-sm me-1" 
-                                role="status" 
+                              <span
+                                className="spinner-border spinner-border-sm me-1"
+                                role="status"
                                 aria-hidden="true"
                               ></span>
                               Posting...
                             </>
                           ) : (
-                            'Post Comment'
+                            "Post Comment"
                           )}
                         </button>
                       </div>
@@ -351,7 +360,6 @@ export default function Article() {
                 </div>
               )}
 
-              {/* Comments List */}
               {commentsLoading ? (
                 <div className="text-center my-4">
                   <div className="spinner-border text-secondary" role="status">
@@ -359,20 +367,23 @@ export default function Article() {
                   </div>
                 </div>
               ) : comments.length > 0 ? (
-                comments.map(comment => (
+                comments.map((comment) => (
                   <div className="card mb-3" key={comment._id}>
                     <div className="card-body">
                       <p className="card-text">{comment.body}</p>
                       <div className="d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center">
                           <img
-                            src={comment.author?.image || 'https://via.placeholder.com/30'}
+                            src={
+                              comment.author?.image ||
+                              "https://via.placeholder.com/30"
+                            }
                             alt={comment.author?.username}
                             className="rounded-circle me-2"
-                            style={{ width: '30px', height: '30px' }}
+                            style={{ width: "30px", height: "30px" }}
                           />
                           <div>
-                            <Link 
+                            <Link
                               to={`/profile/${comment.author?.username}`}
                               className="text-decoration-none fw-bold"
                             >
@@ -383,14 +394,15 @@ export default function Article() {
                             </div>
                           </div>
                         </div>
-                        {isAuthenticated && user?._id === comment.author?._id && (
-                          <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteComment(comment._id)}
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
+                        {isAuthenticated &&
+                          user?._id === comment.author?._id && (
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleDeleteComment(comment._id)}
+                            >
+                              <FaTrash />
+                            </button>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -405,33 +417,39 @@ export default function Article() {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Confirm Delete</h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
+                <button
+                  type="button"
+                  className="btn-close"
                   onClick={() => setShowDeleteModal(false)}
                 ></button>
               </div>
               <div className="modal-body">
-                <p>Are you sure you want to delete this article? This action cannot be undone.</p>
+                <p>
+                  Are you sure you want to delete this article? This action
+                  cannot be undone.
+                </p>
               </div>
               <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setShowDeleteModal(false)}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="button" 
-                  className="btn btn-danger" 
+                <button
+                  type="button"
+                  className="btn btn-danger"
                   onClick={confirmDelete}
                 >
                   Delete

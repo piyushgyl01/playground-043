@@ -12,7 +12,7 @@ export default function AuthForm({ mode }) {
     name: isLogin ? undefined : "",
     email: isLogin ? undefined : "",
     password: "",
-    confirmPassword: isLogin ? undefined : "",  
+    confirmPassword: isLogin ? undefined : "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ export default function AuthForm({ mode }) {
         return false;
       }
 
-      if (formData.password !== formData.confirmPassword) { 
+      if (formData.password !== formData.confirmPassword) {
         setError("Passwords do not match");
         return false;
       }
@@ -87,7 +87,7 @@ export default function AuthForm({ mode }) {
         };
         result = await login(credentials);
       } else {
-        const { confirmPassword, ...registrationData } = formData; 
+        const { confirmPassword, ...registrationData } = formData;
         result = await register(registrationData);
       }
       if (result.success) {
@@ -196,7 +196,7 @@ export default function AuthForm({ mode }) {
                       className="form-control"
                       id="confirmPassword"
                       name="confirmPassword"
-                      value={formData.confirmPassword}  
+                      value={formData.confirmPassword}
                       onChange={handleChange}
                       required
                     />

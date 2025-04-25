@@ -8,7 +8,6 @@ export default function Edit() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  // States
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -22,14 +21,12 @@ export default function Edit() {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Check if user is authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
     }
   }, [isAuthenticated, navigate]);
 
-  // Load article data for editing
   useEffect(() => {
     if (id) {
       setIsEditing(true);
@@ -37,16 +34,17 @@ export default function Edit() {
     }
   }, [id]);
 
-  // Fetch article data
   const fetchArticle = async (articleId) => {
     try {
       setArticleLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/articles/${articleId}`);
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/articles/${articleId}`
+      );
+
       if (!response.ok) {
         throw new Error("Failed to fetch article");
       }
-      
+
       const data = await response.json();
       if (data.article) {
         setFormData({
@@ -63,18 +61,17 @@ export default function Edit() {
     }
   };
 
-  // Form validation
   const validateForm = () => {
     const errors = {};
     if (!formData.title.trim()) errors.title = "Title is required";
-    if (!formData.description.trim()) errors.description = "Description is required";
+    if (!formData.description.trim())
+      errors.description = "Description is required";
     if (!formData.body.trim()) errors.body = "Content is required";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -82,7 +79,6 @@ export default function Edit() {
       [name]: value,
     }));
 
-    // Clear error for this field if it exists
     if (formErrors[name]) {
       setFormErrors((prev) => ({
         ...prev,
@@ -91,12 +87,10 @@ export default function Edit() {
     }
   };
 
-  // Handle tag input change
   const handleTagInputChange = (e) => {
     setTagInput(e.target.value);
   };
 
-  // Add a tag
   const addTag = (e) => {
     e.preventDefault();
     if (tagInput.trim() && !formData.tagList.includes(tagInput.trim())) {
@@ -108,7 +102,6 @@ export default function Edit() {
     }
   };
 
-  // Remove a tag
   const removeTag = (tag) => {
     setFormData((prev) => ({
       ...prev,
@@ -116,7 +109,6 @@ export default function Edit() {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -125,13 +117,13 @@ export default function Edit() {
     try {
       setLoading(true);
       setError(null);
-      
-      const url = isEditing 
+
+      const url = isEditing
         ? `${import.meta.env.VITE_API_URL}/articles/${id}`
         : `${import.meta.env.VITE_API_URL}/articles`;
-      
+
       const method = isEditing ? "PUT" : "POST";
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -140,12 +132,12 @@ export default function Edit() {
         credentials: "include",
         body: JSON.stringify(formData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to save article");
       }
-      
+
       const result = await response.json();
       navigate(`/article/${result.article._id}`);
     } catch (err) {
@@ -155,10 +147,12 @@ export default function Edit() {
     }
   };
 
-  // Loading state while fetching article
   if (isEditing && articleLoading) {
     return (
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -178,10 +172,14 @@ export default function Edit() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="articleTitle" className="form-label">Title</label>
+              <label htmlFor="articleTitle" className="form-label">
+                Title
+              </label>
               <input
                 type="text"
-                className={`form-control ${formErrors.title ? 'is-invalid' : ''}`}
+                className={`form-control ${
+                  formErrors.title ? "is-invalid" : ""
+                }`}
                 id="articleTitle"
                 name="title"
                 placeholder="Article Title"
@@ -194,10 +192,14 @@ export default function Edit() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="articleDescription" className="form-label">Description</label>
+              <label htmlFor="articleDescription" className="form-label">
+                Description
+              </label>
               <input
                 type="text"
-                className={`form-control ${formErrors.description ? 'is-invalid' : ''}`}
+                className={`form-control ${
+                  formErrors.description ? "is-invalid" : ""
+                }`}
                 id="articleDescription"
                 name="description"
                 placeholder="What's this article about?"
@@ -210,9 +212,13 @@ export default function Edit() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="articleBody" className="form-label">Content (supports Markdown)</label>
+              <label htmlFor="articleBody" className="form-label">
+                Content (supports Markdown)
+              </label>
               <textarea
-                className={`form-control ${formErrors.body ? 'is-invalid' : ''}`}
+                className={`form-control ${
+                  formErrors.body ? "is-invalid" : ""
+                }`}
                 id="articleBody"
                 name="body"
                 rows="8"
@@ -226,7 +232,9 @@ export default function Edit() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="articleTags" className="form-label">Tags</label>
+              <label htmlFor="articleTags" className="form-label">
+                Tags
+              </label>
               <div className="input-group mb-2">
                 <input
                   type="text"
@@ -237,9 +245,9 @@ export default function Edit() {
                   onChange={handleTagInputChange}
                   onKeyPress={(e) => e.key === "Enter" && addTag(e)}
                 />
-                <button 
+                <button
                   type="button"
-                  className="btn btn-outline-secondary" 
+                  className="btn btn-outline-secondary"
                   onClick={addTag}
                 >
                   Add
@@ -273,9 +281,9 @@ export default function Edit() {
               >
                 {loading ? (
                   <>
-                    <span 
-                      className="spinner-border spinner-border-sm me-2" 
-                      role="status" 
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
                       aria-hidden="true"
                     ></span>
                     Saving...

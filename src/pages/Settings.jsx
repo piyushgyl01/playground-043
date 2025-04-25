@@ -6,7 +6,6 @@ export default function Settings() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Form state
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -16,12 +15,10 @@ export default function Settings() {
     password: "",
   });
 
-  // Loading and message states
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Populate form with current user data
   useEffect(() => {
     if (user) {
       setFormData({
@@ -35,7 +32,6 @@ export default function Settings() {
     }
   }, [user]);
 
-  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -44,25 +40,20 @@ export default function Settings() {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMessage("");
     setErrorMessage("");
 
-    // Only send non-empty fields that have changed
     const updatedFields = {};
     Object.keys(formData).forEach((key) => {
-      // Skip password if it's empty
       if (key === "password" && !formData[key]) return;
 
-      // Only include changed fields
       if (user[key] !== formData[key]) {
         updatedFields[key] = formData[key];
       }
     });
 
-    // Don't submit if nothing has changed
     if (Object.keys(updatedFields).length === 0) {
       setSuccessMessage("No changes to save.");
       return;
@@ -70,22 +61,23 @@ export default function Settings() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/user`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(updatedFields),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/user`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(updatedFields),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
         setSuccessMessage("Profile updated successfully!");
-        // Clear password field after successful update
         setFormData((prev) => ({ ...prev, password: "" }));
-        
-        // Force a refresh of user data (you might want to implement this in your AuthContext)
+
         window.location.reload();
       } else {
         const error = await response.json();
@@ -99,7 +91,6 @@ export default function Settings() {
     }
   };
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await logout();
@@ -111,7 +102,10 @@ export default function Settings() {
 
   if (!user) {
     return (
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -134,7 +128,9 @@ export default function Settings() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="profileImage" className="form-label">Profile Picture URL</label>
+              <label htmlFor="profileImage" className="form-label">
+                Profile Picture URL
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -147,7 +143,9 @@ export default function Settings() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="name" className="form-label">Full Name</label>
+              <label htmlFor="name" className="form-label">
+                Full Name
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -160,7 +158,9 @@ export default function Settings() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="username" className="form-label">
+                Username
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -173,7 +173,9 @@ export default function Settings() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="bio" className="form-label">Bio</label>
+              <label htmlFor="bio" className="form-label">
+                Bio
+              </label>
               <textarea
                 className="form-control"
                 id="bio"
@@ -186,7 +188,9 @@ export default function Settings() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
               <input
                 type="email"
                 className="form-control"
@@ -199,7 +203,9 @@ export default function Settings() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="password" className="form-label">New Password</label>
+              <label htmlFor="password" className="form-label">
+                New Password
+              </label>
               <input
                 type="password"
                 className="form-control"

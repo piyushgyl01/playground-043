@@ -6,8 +6,7 @@ import { useAuth } from "../contexts/authContext";
 export default function Profile() {
   const { username } = useParams();
   const { isAuthenticated, user } = useAuth();
-  
-  // State variables
+
   const [profile, setProfile] = useState(null);
   const [articles, setArticles] = useState([]);
   const [favoriteArticles, setFavoriteArticles] = useState([]);
@@ -17,22 +16,28 @@ export default function Profile() {
   const [articlesLoading, setArticlesLoading] = useState(true);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
 
-  // Fetch profile data
   useEffect(() => {
     async function fetchProfile() {
       try {
         setLoading(true);
         setError(null);
-        
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/profile/${username}`, {
-          credentials: "include" // Include credentials for auth
-        });
-        
+
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/profile/${username}`,
+          {
+            credentials: "include",
+          }
+        );
+
         if (!response.ok) {
           if (response.status === 401) {
-            // If unauthorized, we should still let the user see public info
-            // Just set an empty profile with the username
-            setProfile({ username, name: username, bio: "", image: null, following: false });
+            setProfile({
+              username,
+              name: username,
+              bio: "",
+              image: null,
+              following: false,
+            });
           } else if (response.status === 404) {
             throw new Error("User not found");
           } else {
@@ -48,17 +53,18 @@ export default function Profile() {
         setLoading(false);
       }
     }
-    
+
     fetchProfile();
   }, [username]);
 
-  // Fetch articles
   useEffect(() => {
     async function fetchArticles() {
       try {
         setArticlesLoading(true);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/articles`);
-        
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/articles`
+        );
+
         if (response.ok) {
           const data = await response.json();
           setArticles(data.articles || []);
@@ -69,40 +75,34 @@ export default function Profile() {
         setArticlesLoading(false);
       }
     }
-    
+
     fetchArticles();
   }, []);
 
-  // When tab changes to favorited, attempt to fetch favorite articles
   useEffect(() => {
-    if (activeTab === "favorited" && isAuthenticated && username === user?.username) {
-      // For logged-in users viewing their own profile, show articles they've favorited
+    if (
+      activeTab === "favorited" &&
+      isAuthenticated &&
+      username === user?.username
+    ) {
       fetchFavoriteArticles();
     }
   }, [activeTab, isAuthenticated, username, user]);
 
-  // Fetch favorite articles (only for authenticated users viewing their own profile)
   const fetchFavoriteArticles = async () => {
     if (!isAuthenticated || username !== user?.username) return;
-    
+
     setFavoritesLoading(true);
     try {
-      // This is where you would ideally have an API endpoint for favorited articles
-      // For now, we'll simulate it by filtering the articles that have `favorited: true`
-      // or are in the user's favoriteArticles array if that's available
-      
-      // In a real implementation, you'd call something like:
-      // const response = await fetch(`${import.meta.env.VITE_API_URL}/articles/favorited`, ...);
-      
-      // For now, just simulate a delay and then filter articles that might be favorited
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Just use the existing articles and filter ones that might be favorited
-      const favorites = articles.filter(article => 
-        article.favorited || 
-        (user.favouriteArticles && user.favouriteArticles.includes(article._id))
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const favorites = articles.filter(
+        (article) =>
+          article.favorited ||
+          (user.favouriteArticles &&
+            user.favouriteArticles.includes(article._id))
       );
-      
+
       setFavoriteArticles(favorites);
     } catch (err) {
       console.error("Error fetching favorite articles:", err);
@@ -111,19 +111,21 @@ export default function Profile() {
     }
   };
 
-  // Handle follow toggle
   const handleFollow = async () => {
     if (!isAuthenticated || !profile) return;
-    
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/profile/${profile.username}/follow`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include"
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/profile/${profile.username}/follow`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
       if (response.ok) {
         const data = await response.json();
         setProfile(data.profile);
@@ -133,32 +135,32 @@ export default function Profile() {
     }
   };
 
-  // Filter articles based on active tab and profile
   const getDisplayedArticles = () => {
     if (!profile) return [];
 
     if (activeTab === "authored") {
-      return articles.filter(article => 
-        article.author && article.author.username === profile.username
+      return articles.filter(
+        (article) =>
+          article.author && article.author.username === profile.username
       );
-    } 
-    else if (activeTab === "favorited") {
+    } else if (activeTab === "favorited") {
       return favoriteArticles;
     }
-    
+
     return [];
   };
 
-  // Format date function
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Loading state for profile
   if (loading) {
     return (
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -166,7 +168,6 @@ export default function Profile() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="container mt-4">
@@ -179,7 +180,6 @@ export default function Profile() {
 
   return (
     <div className="profile-page">
-      {/* Profile Header */}
       <div className="py-5 bg-light mb-4">
         <div className="container text-center">
           <img
@@ -193,7 +193,9 @@ export default function Profile() {
 
           {isAuthenticated && user?.username !== profile.username && (
             <button
-              className={`btn ${profile.following ? 'btn-secondary' : 'btn-outline-secondary'} mt-2`}
+              className={`btn ${
+                profile.following ? "btn-secondary" : "btn-outline-secondary"
+              } mt-2`}
               onClick={handleFollow}
             >
               {profile.following ? (
@@ -211,34 +213,44 @@ export default function Profile() {
       </div>
 
       <div className="container">
-        {/* Tabs Navigation */}
         <ul className="nav nav-tabs mb-4">
           <li className="nav-item">
-            <a 
-              className={`nav-link ${activeTab === 'authored' ? 'active' : ''}`}
-              href="#" 
-              onClick={(e) => { e.preventDefault(); setActiveTab('authored'); }}
+            <a
+              className={`nav-link ${activeTab === "authored" ? "active" : ""}`}
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("authored");
+              }}
             >
               Articles
             </a>
           </li>
           <li className="nav-item">
-            <a 
-              className={`nav-link ${activeTab === 'favorited' ? 'active' : ''}`}
-              href="#" 
-              onClick={(e) => { e.preventDefault(); setActiveTab('favorited'); }}
+            <a
+              className={`nav-link ${
+                activeTab === "favorited" ? "active" : ""
+              }`}
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("favorited");
+              }}
             >
               Favorited Articles
             </a>
           </li>
         </ul>
 
-        {/* Articles List */}
         <div className="row">
           <div className="col-md-12">
-            {(articlesLoading && activeTab === 'authored') || (favoritesLoading && activeTab === 'favorited') ? (
+            {(articlesLoading && activeTab === "authored") ||
+            (favoritesLoading && activeTab === "favorited") ? (
               <div className="text-center my-4">
-                <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                <div
+                  className="spinner-border spinner-border-sm text-secondary"
+                  role="status"
+                >
                   <span className="visually-hidden">Loading articles...</span>
                 </div>
               </div>
@@ -246,15 +258,25 @@ export default function Profile() {
               <>
                 {getDisplayedArticles().length > 0 ? (
                   getDisplayedArticles().map((article) => (
-                    <div className="card mb-3 shadow-sm border-0" key={article._id}>
+                    <div
+                      className="card mb-3 shadow-sm border-0"
+                      key={article._id}
+                    >
                       <div className="card-body p-4">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                           <div className="d-flex align-items-center">
                             <img
-                              src={article.author?.image || "https://via.placeholder.com/40"}
+                              src={
+                                article.author?.image ||
+                                "https://via.placeholder.com/40"
+                              }
                               alt={article.author?.username}
                               className="rounded-circle me-3"
-                              style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                objectFit: "cover",
+                              }}
                             />
                             <div>
                               <Link
@@ -276,13 +298,20 @@ export default function Profile() {
                           to={`/article/${article._id}`}
                           className="text-decoration-none text-dark"
                         >
-                          <h5 className="card-title mb-3 fw-bold">{article.title}</h5>
+                          <h5 className="card-title mb-3 fw-bold">
+                            {article.title}
+                          </h5>
                           <p className="card-text text-muted mb-3">
-                            {article.description || article.body?.substring(0, 150)}...
+                            {article.description ||
+                              article.body?.substring(0, 150)}
+                            ...
                           </p>
                         </Link>
                         <div className="d-flex justify-content-between align-items-center mt-4">
-                          <Link to={`/article/${article._id}`} className="text-decoration-none text-primary">
+                          <Link
+                            to={`/article/${article._id}`}
+                            className="text-decoration-none text-primary"
+                          >
                             Read more...
                           </Link>
                           <div>
@@ -302,22 +331,32 @@ export default function Profile() {
                   ))
                 ) : (
                   <div className="text-center text-muted my-5 py-5">
-                    {activeTab === 'authored' ? (
+                    {activeTab === "authored" ? (
                       <p>No articles found.</p>
                     ) : (
                       <>
                         {!isAuthenticated ? (
                           <div>
                             <p>Sign in to see favorited articles</p>
-                            <Link to="/login" className="btn btn-outline-primary mt-2">Sign in</Link>
+                            <Link
+                              to="/login"
+                              className="btn btn-outline-primary mt-2"
+                            >
+                              Sign in
+                            </Link>
                           </div>
                         ) : username !== user?.username ? (
                           <p>You can only view your own favorite articles</p>
                         ) : (
                           <div className="mb-4">
-                            <FaHeart className="mb-3" style={{ fontSize: "2rem", color: "#dc3545" }} />
+                            <FaHeart
+                              className="mb-3"
+                              style={{ fontSize: "2rem", color: "#dc3545" }}
+                            />
                             <p>No favorited articles yet</p>
-                            <p className="small text-muted">Articles you favorite will show up here</p>
+                            <p className="small text-muted">
+                              Articles you favorite will show up here
+                            </p>
                           </div>
                         )}
                       </>
