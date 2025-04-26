@@ -27,7 +27,6 @@ export default function AuthForm({ mode }) {
   };
 
   const validateInputs = () => {
-    // Common validation
     if (!formData.username.trim()) {
       setError("Username is required");
       return false;
@@ -38,7 +37,6 @@ export default function AuthForm({ mode }) {
       return false;
     }
 
-    // Register-specific validation
     if (!isLogin) {
       if (formData.password.length < 8) {
         setError("Password must be at least 8 characters long");
@@ -84,7 +82,6 @@ export default function AuthForm({ mode }) {
       let result;
 
       if (isLogin) {
-        // Login mode
         const credentials = {
           username: formData.username,
           password: formData.password,
@@ -92,7 +89,6 @@ export default function AuthForm({ mode }) {
 
         result = await login(credentials);
       } else {
-        // Register mode
         const { confirmPassword, ...registrationData } = formData;
 
         result = await register(registrationData);
@@ -124,7 +120,6 @@ export default function AuthForm({ mode }) {
               {error && <div className="alert alert-danger">{error}</div>}
 
               <form onSubmit={handleSubmit}>
-                {/* Username field - common to both modes */}
                 <div className="mb-3">
                   <label htmlFor="username" className="form-label">
                     Username
@@ -140,7 +135,6 @@ export default function AuthForm({ mode }) {
                   />
                 </div>
 
-                {/* Register-only fields */}
                 {!isLogin && (
                   <>
                     <div className="mb-3">
@@ -175,7 +169,6 @@ export default function AuthForm({ mode }) {
                   </>
                 )}
 
-                {/* Password field - common to both modes */}
                 <div className="mb-3">
                   <label htmlFor="password" className="form-label">
                     Password
@@ -197,7 +190,6 @@ export default function AuthForm({ mode }) {
                   )}
                 </div>
 
-                {/* Confirm password - register only */}
                 {!isLogin && (
                   <div className="mb-3">
                     <label htmlFor="confirmPassword" className="form-label">
