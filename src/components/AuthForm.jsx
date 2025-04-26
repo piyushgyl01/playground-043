@@ -12,20 +12,22 @@ export default function AuthForm({ mode }) {
     name: isLogin ? undefined : "",
     email: isLogin ? undefined : "",
     password: "",
-    confirmPassword: isLogin ? undefined : "", // Fixed typo
+    confirmPassword: isLogin ? undefined : "",
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
-  }
+  };
 
-  function validateInputs() {
+  const validateInputs = () => {
+    // Common validation
     if (!formData.username.trim()) {
       setError("Username is required");
       return false;
@@ -36,13 +38,14 @@ export default function AuthForm({ mode }) {
       return false;
     }
 
+    // Register-specific validation
     if (!isLogin) {
       if (formData.password.length < 8) {
         setError("Password must be at least 8 characters long");
         return false;
       }
 
-      if (formData.password !== formData.confirmPassword) { // Fixed comparison
+      if (formData.password !== formData.confirmPassword) {
         setError("Passwords do not match");
         return false;
       }
@@ -65,9 +68,9 @@ export default function AuthForm({ mode }) {
     }
 
     return true;
-  }
+  };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -81,27 +84,32 @@ export default function AuthForm({ mode }) {
       let result;
 
       if (isLogin) {
+        // Login mode
         const credentials = {
           username: formData.username,
           password: formData.password,
         };
+
         result = await login(credentials);
       } else {
-        const { confirmPassword, ...registrationData } = formData; // Fixed destructuring
+        // Register mode
+        const { confirmPassword, ...registrationData } = formData;
+
         result = await register(registrationData);
       }
+
       if (result.success) {
         navigate("/");
       } else {
         setError(result.error || `Failed to ${isLogin ? "login" : "register"}`);
       }
-    } catch (error) {
+    } catch (err) {
       setError("An unexpected error occurred. Please try again.");
-      console.error(error);
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="container my-5">
@@ -116,6 +124,7 @@ export default function AuthForm({ mode }) {
               {error && <div className="alert alert-danger">{error}</div>}
 
               <form onSubmit={handleSubmit}>
+                {/* Username field - common to both modes */}
                 <div className="mb-3">
                   <label htmlFor="username" className="form-label">
                     Username
@@ -131,6 +140,7 @@ export default function AuthForm({ mode }) {
                   />
                 </div>
 
+                {/* Register-only fields */}
                 {!isLogin && (
                   <>
                     <div className="mb-3">
@@ -165,6 +175,7 @@ export default function AuthForm({ mode }) {
                   </>
                 )}
 
+                {/* Password field - common to both modes */}
                 <div className="mb-3">
                   <label htmlFor="password" className="form-label">
                     Password
@@ -186,6 +197,7 @@ export default function AuthForm({ mode }) {
                   )}
                 </div>
 
+                {/* Confirm password - register only */}
                 {!isLogin && (
                   <div className="mb-3">
                     <label htmlFor="confirmPassword" className="form-label">
@@ -196,7 +208,7 @@ export default function AuthForm({ mode }) {
                       className="form-control"
                       id="confirmPassword"
                       name="confirmPassword"
-                      value={formData.confirmPassword} // Fixed typo
+                      value={formData.confirmPassword}
                       onChange={handleChange}
                       required
                     />

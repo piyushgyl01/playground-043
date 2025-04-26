@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function checkAuthStatus() {
+    const checkAuthStatus = async () => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/auth/user`,
@@ -25,17 +25,17 @@ export const AuthProvider = ({ children }) => {
           const userData = await response.json();
           setUser(userData);
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error("Error checking authentication status", err);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     checkAuthStatus();
   }, []);
 
-  async function register(userData) {
+  const register = async (userData) => {
     setError(null);
     try {
       const response = await fetch(
@@ -58,13 +58,13 @@ export const AuthProvider = ({ children }) => {
 
       setUser(data.user);
       return { success: true, data };
-    } catch (error) {
-      setError(error.message);
-      return { success: false, error: error.message };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
     }
-  }
+  };
 
-  async function login(credentials) {
+  const login = async (credentials) => {
     setError(null);
     try {
       const response = await fetch(
@@ -87,14 +87,14 @@ export const AuthProvider = ({ children }) => {
 
       setUser(data.user);
       return { success: true, data };
-    } catch (error) {
-      setError(error.message);
-      return { success: false, error: error.message };
+    } catch (err) {
+      console.log(err)
+      setError(err.message);
+      return { success: false, error: err.message };
     }
-  }
+  };
 
-  async function logout() {
-    setError(null);
+  const logout = async () => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/logout`,
@@ -106,13 +106,38 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(null);
-        return { success: true, data };
+        return { success: true };
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || "Logout failed");
       }
-    } catch (error) {
-      setError(error.message);
-      return { success: false, error: error.message };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
     }
-  }
+  };
+
+  const refreshToken = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Token refresh failed");
+      }
+
+      return { success: true };
+    } catch (err) {
+      console.error("Error refreshing token", err);
+      return { success: false, error: err.message };
+    }
+  };
 
   const isAuthenticated = !!user;
 
@@ -123,6 +148,7 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    refreshToken,
     isAuthenticated,
   };
 
